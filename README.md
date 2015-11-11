@@ -8,10 +8,12 @@ The solution for this exercise is contained in the 'project1.Rmd' R markdown doc
 
 File                 | Description
 -------------------- | ------------------------------------------------------------------------------
-project1.Rmd         | The R markdown document implementing the predictive model for this exercise.
-project1.html        | The R markdown document generated in HTML.
-project1.pdf         | The R markdown document generated in a PDF.
-munge/pml-training.R | Performs simply data pre-processing.
+Analysis.Rmd         | The R markdown document implementing the predictive model for the assignment.
+Analysis.html        | The R markdown document generated in HTML.
+Analysis.pdf         | The R markdown document generated in a PDF.
+pml-training.csv     | Training data file used
+pml-testing.csv      | Testing data file used
+solutionfiles        | Directory that contains the file predictions for the 20 cases (Submission Part of The project)
 
 #### Background
 
