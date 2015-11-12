@@ -1,25 +1,28 @@
+---
+output: html_document
+---
 Project for Data Science Specialization
-Practical Machine Learning - Project 1
+Practical Machine Learning - Project (Write-Up)
 ===================================================================
 
-#### Solution
+## Files contained
 
-The solution for this exercise is contained in the 'project1.Rmd' R markdown document.  Running this document will generate not only a document outlining each of the steps taken, but will also output the test set results that were submitted for grading.
+The files contained in this Repo are:
 
 File                 | Description
 -------------------- | ------------------------------------------------------------------------------
-Analysis.Rmd         | The R markdown document implementing the predictive model for the assignment.
-Analysis.html        | The R markdown document generated in HTML.
-Analysis.pdf         | The R markdown document generated in a PDF.
-pml-training.csv     | Training data file used
-pml-testing.csv      | Testing data file used
-solutionfiles        | Directory that contains the file predictions for the 20 cases (Submission Part of The project)
+Analysis.Rmd         | Write-Up part of the project generated in R Markdown.
+Analysis.html        | Write-Up part of the project generated in HTML.
+Analysis.pdf         | Write-Up part of the project generated in a PDF.
+pml-training.csv     | Training data file used.
+pml-testing.csv      | Testing data file used.
+solutionfiles        | Directory that contains the file predictions for the 20 cases (Submission Part of The project).
 
-#### Background
+## Background
 
 Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
 
-#### Data 
+## Data 
 
 The training data for this project are available here: 
 
@@ -31,7 +34,7 @@ https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
 
 The data for this project come from this source: http://groupware.les.inf.puc-rio.br/har. If you use the document you create for this class for any purpose please cite them as they have been very generous in allowing their data to be used for this kind of assignment. 
 
-#### What you should submit
+## What you should submit
 
 The goal of your project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. You may use any of the other variables to predict with. You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did. You will also use your prediction model to predict 20 different test cases. 
 
@@ -39,8 +42,6 @@ The goal of your project is to predict the manner in which they did the exercise
 
 2. You should also apply your machine learning algorithm to the 20 test cases available in the test data above. Please submit your predictions in appropriate format to the programming assignment for automated grading. See the programming assignment for additional details. 
 
-#### Reproducibility 
+## Reproducibility 
 
 Due to security concerns with the exchange of R code, your code will not be run during the evaluation by your classmates. Please be sure that if they download the repo, they will be able to view the compiled HTML version of your analysis. 
-
-
