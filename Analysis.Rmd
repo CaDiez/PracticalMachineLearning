@@ -1,155 +1,137 @@
 ---
 title: "Practical Machine Learning - Write-Up Project"
 author: "Carlos Alberto Guevara Díez"
+geometry: margin=1 cm
 date: "November, 2015"
-output: html_document
+output: pdf_document
 ---
+The goal of this project is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants and predict the manner in which people sis the exercise, to be more specific I´m going to predict the classe variable of the data sets, for further information about the description of the project and data used, please refer to the ReadMe file included in this repo.
 
-The goal of this project is to predict the manner in which people did the exercise. This is the "classe" variable in the training set. I created this report to  describe how I built the model, how I used cross validation, what I think the expected out of sample error is. There is also the script for the 20 predictions.
+# Data Pre-Processing and Exploratory Analysis
+The first thing to do is to load all the libraries needed to run the functions used in the project.
 
-Data Processing and Analysis
-
-The training and testing datasets are avaiable here:
-
-Training dataset:
-https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
-
-Testing dataset:
-https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
-
-
- Load all the librarys necesary to run the project.
-
-```{r}
+```{r load_libraries, results='hide'}
 library(caret)
 library(ggplot2)
 library(corrplot)
 library(randomForest)
 ```
 
- assing the data from pml-training.csv and pml-testing.csv files to the variables.
+Once loaded I´m going to load the data into R.
+Note: If you are going to run the code in your own environment please change the first line of the following chunk:
 
-
-```{r}
+```{r load_data}
+#Adjust this line to your own environment.
 setwd("C:/Users/220194/Documents/Data Science Specialization/08 Practical Machine Learning/PracticalMachineLearning")
+#Read csv files provided
 training <- read.csv("pml-training.csv",na.strings = c("NA", ""))
-test <- read.csv("pml-testing.csv",na.strings = c("NA", ""))
+testing <- read.csv("pml-testing.csv",na.strings = c("NA", ""))
 ```
 
- We search in the variables those columns that dont contibute to the analysis 
- because they are character or non-numerical.
+At this point I need to make some exploratory analysis on the data in order to identify those columns that do not support the analysis because they are non-numerical.
+Using what I´ve seen now I'm going to remove columns using the grep function an create a new vector.
+Note: To make the report easier to read I´m hiding the results of the sapply function, please refer to the appendix section (1) of this report to see the results.
 
-```{r results='hide'}
-sapply(test,class)
-```
-
-
- Using What we saw in the previous part we should remove some of the columns that not make sence to have with the grep function, because thay are not numeric and create a new vector from this operation.
- 
-```{r}
+```{r explore_and_remove, results='hide'}
+#Explore the class of the columns
+sapply(testing,class)
+#Using previous exploration generate newe data sets removing non-numerical columns
 training_aux <- training[, -(grep("timestamp|X|user_name|num_window|new_window", names(training)))]
-test_aux <- test[, -(grep("timestamp|X|user_name|num_window|new_window", names(test)))]
+testing_aux <- testing[, -(grep("timestamp|X|user_name|num_window|new_window", names(testing)))]
 ```
- 
- 
-Many of the columns we load have NA`s values. We take out  from the variables those data with NA's values
-The NA`s records make our machine learning algorithm less precise. Finally we update the vector with out any NA`s values.
-```{r}
+
+As part of the pre-processing tasks I need to get rid of the NA values, as you know The NA`s records make our machine learning algorithm less precise, that´s why is so important to take care of it, once removed I'm updating the vectors I´m going to use in my analysis.
+Finally I'm going to create my working vectors using a 60%-40% relation between training and testing data sets.
+
+```{r remove_NAs_createDS}
+#Identify NAs
 NAs <- apply(training_aux, 2, function(x) {
     sum(is.na(x))})
-
+#Remove NAs
 training_aux <- training_aux[, which(NAs == 0)]
-test_aux <- test_aux[, which(NAs == 0)]
+testing_aux <- testing_aux[, which(NAs == 0)]
+#Create Working training and testing data sets.
+trainingWS <- training_aux[createDataPartition(y = training_aux$classe, p = 0.6, list = FALSE), ]  
+testingWS <- training_aux[-createDataPartition(y = training_aux$classe, p = 0.6, list = FALSE), ]
 ```
 
+Now it´s time to look the changes that I've done, once again for more readability of the document I´m hiding the results, please refer to the appendix section (2) of this report to see the results.
 
- We split the data into two variables. First the training data with the 60 % and the test data with 40%. 
-
-```{r}
-training.idx <- training_aux[createDataPartition(y = training_aux$classe, p = 0.6, list = FALSE), ]  
-test.idx <- training_aux[-createDataPartition(y = training_aux$classe, p = 0.6, list = FALSE), ]  
-
+```{r review_changes, results='hide'}
+#Review the changes in the DataSets
+dim(trainingWS)
+head(trainingWS)
 ```
 
+To end with the exploratory tasks I´m showing the following graphic, this one is useful to understand the correlation among the variables, please note the code of color in which the dark blue indicates strong correlation and red negative correlation. 
 
-We take a look how our variables shrink, with out the NA`s values.
-
-```{r}
-dim(training.idx)
-head(training.idx)
-```
-
- this graph is usefull to look at the correlation with some variables to each others. Note that the dark blue indicated strong correlation and red negative correlation. Our dataset is 11776 X 53 and one of those is Classe, the variable we want to predict.
- This graph shows us nice information to implement a Random Forest Study.
-
-```{r}
-
-Graph <- training.idx
-
-NAs <- apply(training.idx, 2, function(x) {
+```{r Correlation_Graphic}
+#Remove NAs and then plot a correlation graphic
+Graph <- trainingWS
+NAs <- apply(trainingWS, 2, function(x) {
     sum(is.na(x))
 })
-Graph<- training.idx[, which(NAs == 0)]
-
-
-
+Graph<- trainingWS[, which(NAs == 0)]
 CorrePlot = cor( Graph[,-c(grep("timestamp|X|user_name|num_window|new_window",names(Graph)), length(Graph))])
-corrplot(CorrePlot, method="circle",tl.cex=0.9)
-
+corrplot(CorrePlot, method="circle",tl.cex=1)
 ```
 
-At this point we create our model using Random Forest and the set of data originally given but reduced.
-We train our model over the dataset using the "boot" method inside trainControl.
+# Model creation
+Now that I have collected enough information to understand the datasets it´s time to build my model using Random Forest.
 
-```{r}
+```{r Create_RandomForestModel}
+#Set seed for reproduction in other environments
 set.seed(10)
-MyModel.Forest<- train(training.idx$classe ~ ., data = training.idx, method = "rf", 
+#Create Model using trainControl and boot as method
+rfModel<- train(trainingWS$classe ~ ., data = trainingWS, method = "rf", 
     prof = TRUE, trControl = trainControl(method = "boot", number = 5, allowParallel = TRUE))
-summary(MyModel.Forest)
-MyModel.Forest
-MyModel.Forest.Final<- MyModel.Forest$results
-round(max(MyModel.Forest.Final$Accuracy), 3) * 100
+#Check for the model, final results and accuracy
+rfModel
+rfModel.Final<- rfModel$results
+round(max(rfModel.Final$Accuracy), 3) * 100
 ```
 
-We got a very nice result of the occuracy at the first attemp: 98.6 %. That`s ok.
+Now that I ran the model it´s possible to say that we have great results, the accuracy of the model is of 98.6 % which is a very nice value.
+Next I´m plotting a Variable Importance Plot which helps to understand the importance of variables (significance) measured by the Random Forest Model.
 
-```{r}
-varImpPlot(MyModel.Forest$finalModel, 
+```{r Signifinact_Components}
+varImpPlot(rfModel$finalModel, 
             main = "Principal Components with high importance")
 ```
 
-## The cross validation study of our model.
+#Testing Evaluations
+With our model built now it´s time to execute some validation to test the accuracy of our model, which will be the following:
 
-```{r}
-test.idx$predRight <- (predict(MyModel.Forest, test.idx))== test.idx$classe
-table(predict(MyModel.Forest, test.idx), test.idx$classe)
-CrossValidated<- postResample((predict(MyModel.Forest, test.idx)), test.idx$classe)
-CrossValidated
+## Cross Validation.
+Now let´s use cross validation to test accuracy on the testing data set created in the past section of this document, as we can see in the results I also got a high level of accuracy
+
+```{r CrossValidation}
+testingWS$predRight <- (predict(rfModel, testingWS))== testingWS$classe
+table(predict(rfModel, testingWS), testingWS$classe)
+CrossValidation<- postResample((predict(rfModel, testingWS)), testingWS$classe)
+CrossValidation
 ```
 
-We got a nice high level of accuracy.
+##Confusion Matrix
+Now it´s time to test the performance of the model, once again its showed that the results of the predictions are very close with the result of the matrix with accuracy of 99.6 %, all this test results shows that the model was built correctly.
 
-# We try out with the ConfussionMatrix
-```{r}
+```{r ConfussionMatrix}
+#set seed for reproduction in opther environments
 set.seed(10)
-CrossValidatedError <- confusionMatrix((predict(MyModel.Forest, test.idx)), test.idx$classe)
-CrossValidatedError
-
-postResample((predict(MyModel.Forest, test.idx)), test.idx$classe)[[1]]
-
-1- postResample((predict(MyModel.Forest, test.idx)), test.idx$classe)[[1]]  
-
+#build the matrix
+CrossValidationError <- confusionMatrix((predict(rfModel, testingWS)), testingWS$classe)
+CrossValidationError
+#Calculate Accuracy
+postResample((predict(rfModel, testingWS)), testingWS$classe)[[1]]
+1- postResample((predict(rfModel, testingWS)), testingWS$classe)[[1]]  
 ```
 
-we can see that our calculus were very close with the result of the matrix. 
-The accurance is 99.6%
+# Submission Part of The Project, prediction of the 20 cases
+Once that I´ve built and tested my model it´s time to use the 20 cases test set to predict the behavior of the people using the jawbone devices, first I´m going to prepare the function to write the files that I´m going to submit to Coursera.
 
-# The 20 cases to predict
-Prepare the function to write the files that we are going to submit to Coursera
-```{r}
+```{r Write_predictions}
 pml_write_files = function(x, directory="solutionfiles"){
   dir.create (directory)
-  
   n = length(x)
   for(i in 1:n){
     filename = paste0("problem_id_",i,".txt")
@@ -159,8 +141,32 @@ pml_write_files = function(x, directory="solutionfiles"){
 }
 ```
 
-```{r}
-Model.Prediction <- predict(MyModel.Forest, test)
+Now that the function is written all I have to do is to use the predict function in the Random Forest model built using de TESTING data set provided (20 cases) and create the files, in the "solutionfiles"" directory provided in this repo are the 20 files that contains the prediction of each case provided in the TESTING data set.
+
+```{r Predict_Cases}
+Model.Prediction <- predict(rfModel, testing)
 Model.Prediction
 pml_write_files(Model.Prediction)
+```
+
+# Final Thoughts
+In this assignment I´ve put in practice several concepts reviewed to the entire Data Science Specialization, finally I´ve put into practice them and understood the relation among training, testing and prediction datasets.
+This project really gave me a complete view of the data science goal and also gave a lot of ideas to put in practice in the real world, I really hope that you enjoy reading this report as much as I've enjoy it writing it, and of course that may help you to understand your own concepts and applications.
+
+#Apendix
+
+## Section (1) sapply function to explore the data
+```{r explore_and_remove1}
+#Explore the class of the columns
+sapply(testing,class)
+#Using previous exploration generate newe data sets removing non-numerical columns
+training_aux <- training[, -(grep("timestamp|X|user_name|num_window|new_window", names(training)))]
+testing_aux <- testing[, -(grep("timestamp|X|user_name|num_window|new_window", names(testing)))]
+```
+
+## Section (2) Review working data sets without NAs
+```{r review_changes1}
+#Review the changes in the DataSets
+dim(trainingWS)
+head(trainingWS)
 ```
