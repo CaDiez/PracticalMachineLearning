@@ -7,15 +7,15 @@ Practical Machine Learning - Project (Write-Up)
 
 ## Files contained
 
-The files contained in this Repo are:
+The files and directories contained in this Repo are:
 
 File                 | Description
 -------------------- | ------------------------------------------------------------------------------
 Analysis.Rmd         | Write-Up part of the project generated in R Markdown.
 Analysis.html        | Write-Up part of the project generated in HTML.
 Analysis.pdf         | Write-Up part of the project generated in a PDF.
-pml-training.csv     | Training data file used.
-pml-testing.csv      | Testing data file used.
+pml-training.csv     | Training/Testing data file used.
+pml-testing.csv      | Testing data file used for predictions.
 solutionfiles        | Directory that contains the file predictions for the 20 cases (Submission Part of The project).
 
 ## Background

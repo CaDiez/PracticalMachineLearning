@@ -15,6 +15,7 @@ library(caret)
 library(ggplot2)
 library(corrplot)
 library(randomForest)
+library (rattle)
 ```
 
 Once loaded I´m going to load the data into R.
