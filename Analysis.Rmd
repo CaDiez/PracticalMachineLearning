@@ -1,9 +1,9 @@
 ---
 title: "Practical Machine Learning - Write-Up Project"
 author: "Carlos Alberto Guevara Díez"
-geometry: margin=1 cm
 date: "November, 2015"
-output: pdf_document
+output: html_document
+geometry: margin=1 cm
 ---
 The goal of this project is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants and predict the manner in which people sis the exercise, to be more specific I´m going to predict the classe variable of the data sets, for further information about the description of the project and data used, please refer to the ReadMe file included in this repo.
 
